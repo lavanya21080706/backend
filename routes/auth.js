@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/user')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const verifyToken = require('../middleware/verifyToken')
 
 
 router.post('/register', async (req, res) => {
@@ -31,12 +32,15 @@ router.post('/register', async (req, res) => {
 
 
         // Generate token
-        const token = jwt.sign({ name: newUser.name }, process.env.JWT_SECRET);
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
+
+        // const token = jwt.sign({ name: newUser.name }, process.env.JWT_SECRET);
 
         res.json({
             message: "User registered successfully",
             token: token,
             name: name,
+            userId: newUser._id, 
             password: hashedPassword,
             success:true,
         });
@@ -72,18 +76,28 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid password' }); // Use 401 for unauthorized (incorrect password)
         }
 
-        const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET);
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+
+        // const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET);
 
         res.json({
             message: "User login successfully",
             token: token,
             name: user.name,
+            userId: user._id, 
             success:true,
         });
     } catch (error) {
         res.status(500).json({ message: 'Failed to login', error: error.message });
     }
 });
+
+router.get('/protectedRoute', verifyToken, async (req, res) => {
+    const userId = req.userId; 
+    console.log(userId)
+
+});
+
 
 
 module.exports = router;

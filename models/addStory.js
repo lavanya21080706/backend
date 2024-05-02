@@ -18,6 +18,10 @@ const SlideSchema = new Schema({
     category: {
         type: String,
         required: true
+    },
+    likes: {
+        type: Number,
+        default: 0
     }
 });
 
@@ -27,6 +31,11 @@ const SlideshowSchema = new Schema({
         // Only the first 3 slides are mandatory
         type: [SlideSchema], 
         validate: [arrayLimit, '{PATH} exceeds the limit of 6'],
+        required: true
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        ref: 'User', // Refers to the User model
         required: true
     }
 });
